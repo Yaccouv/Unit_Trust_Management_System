@@ -1,0 +1,96 @@
+-- Disable foreign key checks to avoid constraint issues during setup
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- Drop tables if they already exist
+DROP TABLE IF EXISTS `transactions`;
+DROP TABLE IF EXISTS `accounts`;
+DROP TABLE IF EXISTS `investors`;
+DROP TABLE IF EXISTS `users`;
+
+-- Enable foreign key checks back
+SET FOREIGN_KEY_CHECKS = 1;
+
+-- Table structure for table `users`
+CREATE TABLE IF NOT EXISTS `users` (
+  `UserId` int NOT NULL AUTO_INCREMENT,
+  `PasswordHash` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `Email` varchar(255) NOT NULL,
+  `Firstname` varchar(255) NOT NULL,
+  `Lastname` varchar(255) NOT NULL,
+  PRIMARY KEY (`UserId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Insert data into `users` table
+INSERT INTO `users` (`UserId`, `PasswordHash`, `Email`, `Firstname`, `Lastname`) VALUES
+(15, '03-ac-67-42-16-f3-e1-5c-76-1e-e1-a5-e2-55-f0-67-95-36-23-c8-b3-88-b4-45-9e-13-f9-78-d7-c8-46-f4', 'debra@gmail.com', 'debra', 'Mungoshi'),
+(14, '03-ac-67-42-16-f3-e1-5c-76-1e-e1-a5-e2-55-f0-67-95-36-23-c8-b3-88-b4-45-9e-13-f9-78-d7-c8-46-f4', 'cov@gmail.com', 'Yaccouv', 'Mungoshi'),
+(13, '59-94-47-1a-bb-01-11-2a-fc-c1-81-59-f6-cc-74-b4-f5-11-b9-98-06-da-59-b3-ca-f5-a9-c1-73-ca-cf-c5', 'yacco@example.com', 'Yaccouv', 'Mungoshi'),
+(12, '47-32-87-f8-29-8d-ba-71-63-a8-97-90-89-58-f7-c0-ea-e7-33-e2-5d-2e-02-79-92-ea-2e-dc-9b-ed-2f-a8', 'user@example.com', 'string', 'string');
+
+-- Table structure for table `investors`
+CREATE TABLE IF NOT EXISTS `investors` (
+  `InvestorNumber` int NOT NULL AUTO_INCREMENT,
+  `Firstname` varchar(255) NOT NULL,
+  `Lastname` varchar(255) NOT NULL,
+  `Gender` varchar(20) NOT NULL,
+  `DateOfBirth` date NOT NULL,
+  `Nationality` varchar(100) NOT NULL,
+  `IdNumber` varchar(100) NOT NULL,
+  `Email` varchar(191) NOT NULL,
+  `PhoneNumber` varchar(20) NOT NULL,
+  `City` varchar(100) NOT NULL,
+  `EmploymentStatus` varchar(50) NOT NULL,
+  `AnnualIncome` decimal(15,2) NOT NULL,
+  `SourceOfFunds` varchar(100) NOT NULL,
+  `BankAccountNumber` varchar(50) NOT NULL,
+  `BankBranchCode` varchar(20) NOT NULL,
+  `BankAccountType` varchar(50) NOT NULL,
+  `InvestmentGoals` varchar(255) NOT NULL,
+  `PaymentPlan` varchar(100) NOT NULL,
+  `NextOfKinName` varchar(255) DEFAULT NULL,
+  `NextOfKinRelationship` varchar(100) DEFAULT NULL,
+  `NextOfKinPhone` varchar(20) DEFAULT NULL,
+  `UserId` int NOT NULL,
+  `CreatedAt` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `UpdatedAt` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`InvestorNumber`),
+  FOREIGN KEY (`UserId`) REFERENCES `users` (`UserId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Insert data into `investors` table
+INSERT INTO `investors` (`InvestorNumber`, `Firstname`, `Lastname`, `Gender`, `DateOfBirth`, `Nationality`, `IdNumber`, `Email`, `PhoneNumber`, `City`, `EmploymentStatus`, `AnnualIncome`, `SourceOfFunds`, `BankAccountNumber`, `BankBranchCode`, `BankAccountType`, `InvestmentGoals`, `PaymentPlan`, `NextOfKinName`, `NextOfKinRelationship`, `NextOfKinPhone`, `UserId`) VALUES
+(12619, 'David', 'Mungoshi', 'Male', '1990-12-03', 'Malawi', 'ID12345', 'david.m@gmail.com', '0999999999', 'Blantyre', 'Employed', 30000.00, 'Savings', '1234567890', 'BLT123', 'Savings', 'Retirement', 'Monthly', 'Sarah Mungoshi', 'Sister', '0888888888', 15);
+
+-- Table structure for table `accounts`
+CREATE TABLE IF NOT EXISTS `accounts` (
+  `AccountsId` int NOT NULL AUTO_INCREMENT,
+  `InvestorNumber` int NOT NULL,
+  `AccountNumber` bigint NOT NULL,
+  `Balance` double NOT NULL,
+  PRIMARY KEY (`AccountsId`),
+  FOREIGN KEY (`InvestorNumber`) REFERENCES `investors` (`InvestorNumber`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Insert data into `accounts` table
+INSERT INTO `accounts` (`AccountsId`, `InvestorNumber`, `AccountNumber`, `Balance`) VALUES
+(1, 12619, 9100000001, 10000.00);
+
+-- Table structure for table `transactions`
+CREATE TABLE IF NOT EXISTS `transactions` (
+  `TransactionID` int NOT NULL AUTO_INCREMENT,
+  `AccountsId` int NOT NULL,
+  `TransactionType` varchar(50) NOT NULL,
+  `TransactionDate` datetime NOT NULL,
+  `Amount` decimal(18,2) NOT NULL,
+  `Status` varchar(50) DEFAULT 'Pending',
+  `CreatedAt` datetime DEFAULT CURRENT_TIMESTAMP,
+  `UpdatedAt` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`TransactionID`),
+  FOREIGN KEY (`AccountsId`) REFERENCES `accounts` (`AccountsId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Insert data into `transactions` table
+INSERT INTO `transactions` (`TransactionID`, `AccountsId`, `TransactionType`, `TransactionDate`, `Amount`, `Status`) VALUES
+(1, 1, 'Deposit', '2024-12-03 10:00:00', 5000.00, 'Completed');
+
+COMMIT;
